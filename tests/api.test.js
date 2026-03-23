@@ -1,0 +1,21 @@
+const request = require('supertest');
+const app = require('../index');
+describe('Electricity API Endpoints', () => {
+// Test Case 1: Total Usage
+    it('should return total electricity usage for all years', async () => {
+        const res = await request(app).get('/api/usages/totalyear');
+        expect(res.status).toBe(200);
+        expect(typeof res.body).toBe('object');
+    });
+// Test Case 2: Specific Province Usage
+    it('should return electricity usage for a specific province and year', async () => {
+        const res = await request(app).get('/api/usages/Alberta/2020');
+        expect(typeof res.body).toBe('Data not found');
+    });
+// Test Case 3: Verify Data Structure for Users
+        it('should return total electricity users for all years', async () => {
+        const res = await request(app).get('/api/his_users/Bangkok');
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body)).toBe(true);
+    });
+});
