@@ -28,13 +28,27 @@ jobs:
         run: npm test || echo "No tests specified" # ใส่เผื่อไว้ถ้ายังไม่มี test จะได้ไม่พัง
 
   build-docker:
-    needs: test-and-lint  # ทำงานหลังจากผ่านการ Test แล้วเท่านั้น
+    needs: test-and-lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build Docker Image
-        run: |
-          docker build -t electricity-api:prod-${{ github.sha }} .
-          echo "Production image built successfully."
+      # 1. เพิ่มขั้นตอน Login เข้า Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # 2. ใช้ Action สำหรับ Build และ Push ทีเดียวเลย
+      - name: Build and Push to Docker Hub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          # ตั้งชื่อ Tag ให้เป็นทั้ง v2 (ตามที่คุณมี) และเลข SHA ของ Git (เพื่อกันหลงเวอร์ชัน)
+          tags: |
+            sujira723/electricity-api:v2
+            sujira723/electricity-api:prod-${{ github.sha }}
+
